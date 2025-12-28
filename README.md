@@ -1,88 +1,63 @@
-# Chest X-Ray Pneumonia Classification with CNN
+# Chest X-Ray Pneumonia Classification with Convolutional Neural Networks
 A medical imaging project using convolutional neural networks to classify chest X-rays as pneumonia or normal, with emphasis on model evaluation and clinical metrics.
 
-## Project Overview
-This project implements an end-to-end convolutional neural network (CNN) pipeline to classify chest X-ray images as **Pneumonia** or **Normal**.  
-Beyond model training, the project focuses on **correct data handling**, **medical image preprocessing**, and **interpreting model performance using appropriate evaluation metrics** such as recall, precision, AUC, and confusion matrices.
+## Project Motivation
+Pneumonia is a common and potentially life-threatening condition, particularly in vulnerable populations. Chest X-ray imaging is widely used as a diagnostic tool, but manual interpretation is time-consuming and subject to inter-observer variability.
 
-## Dataset
-The dataset is sourced from the Kaggle **Chest X-Ray Images (Pneumonia)** dataset.
-It contains **5,863 X-Ray images (JPEG)** organized into a directory-based structure suitable for supervised learning.
+This project explores whether a convolutional neural network (CNN) can learn discriminative visual patterns from chest X-ray images to perform **binary classification (Pneumonia vs Normal)**. Rather than focusing solely on accuracy, the project emphasizes **clinically meaningful evaluation metrics**, such as recall and AUC, due to the high cost of false negatives in medical diagnosis.
 
-Directory structure:
+## Dataset & Task Definition
+The dataset is from the Kaggle **Chest X-Ray Images (Pneumonia)** collection,  organized into `train`, `validation`, and `test` folders, each containing two categories: **PNEUMONIA** and **NORMAL**..
 
-- 'train/' - training images
-- 'val/': - validation images
-- 'test/': - test images
+- **Task type:** Binary image classification
+- **Input:** Chest X-ray images (JPEG)
+- **Output:** Probability of pneumonia presence
 
-Each split contains two subfolders:
-- 'PNEUMONIA/'
-- 'NORMAL/'
+The folder-based structure allows labels to be inferred directly from directory names, reducing the risk of label leakage.
 
-## Data Preprocessing Pipeline
-The following preprocessing and input pipeline steps were implemented using 'tf.data':
+## Methodology: End-to-End Pipeline
+This project was designed as a complete image classification pipeline rather than a standalone model experiment:
 
-- Construct dataset from directory structure using 'image_dataset_from_directory'
-- Resize images to a fixed resolution '(224 × 224)'
-- Batch and shuffle training data
-- Visual inspection of raw images and labels
-- Apply **data augmentation** (random rotation, zoom, and contrast) during training
-- Normalize pixel values to '[0, 1]'
-- Use **cache()** and **prefetch()** to optimize data loading performance
+1. Data inspection and folder structure verification  
+2. Dataset creation using `image_dataset_from_directory`  
+3. Visual sanity checks of images and labels  
+4. Data augmentation (rotation, zoom, contrast)  
+5. Pixel normalization to `[0, 1]`  
+6. Dataset optimization using caching and prefetching 
 
-These steps ensure both correctness and efficiency when handling medical imaging data.
+This structure reflects real-world workflows where data handling is as critical as model design.
 
-## Model Architecture
-A baseline CNN model was implemented using TensorFlow / Keras with the following components:
+## Model Architecture & Training
+A baseline CNN model was implemented to establish a strong yet interpretable reference model:
 
-  - **Conv2D layers** to learn local spatial features such as edges and textures
-  - **MaxPooling2D layers** to reduce spatial dimensions and computational cost
-  - **Flatten layer** to convert feature maps into a 1D representation
-  - **Dense layers** for feature integration
-  - **Dropout layer** for regularization and improved generalization
+- Stacked **Conv2D + MaxPooling** layers for hierarchical feature extraction  
+- Fully connected layer for feature integration  
+- **Dropout** to reduce overfitting  
+- **Sigmoid output** layer for binary classification  
 
-The final output layer uses **sigmoid activation**, suitable for binary classification (Pneumonia vs Normal).
-
-## Model Training & Evaluation
+**Training setup:**
 - Optimizer: Adam  
 - Loss function: Binary Crossentropy  
-- Training epochs: 3
+- Epochs: 3
 
-Evaluation metrics include:
-- Accuracy
-- AUC (Area Under ROC Curve)
-- Precision
-- Recall
+The goal was to validate pipeline correctness and evaluation behavior rather than aggressively optimize performance.
 
-Model performance was further analyzed using:
-- **Confusion matrix** (TP / FP / FN / TN)
-- **Accuracy and loss curves**
-- **Visual inspection of predictions with confidence scores**
+## Evaluation Strategy
+In medical imaging tasks, accuracy alone can be misleading. Therefore, multiple complementary metrics were used:
 
-## Results
-The model demonstrated strong performance on the validation set:
+- **Recall:** Measures the ability to detect pneumonia cases (minimizing false negatives)  
+- **Precision:** Measures prediction reliability  
+- **AUC:** Evaluates overall class separation capability  
+- **Confusion Matrix:** Explicit analysis of TP / FP / FN / TN
 
-- Training and validation accuracy increased consistently across epochs
-- Loss decreased steadily during training
-- High recall values indicate good sensitivity for pneumonia detection
-- Confusion matrix showed correct classification on validation samples
+Additionally, visual inspection of predictions with confidence scores was performed.
 
-These results suggest the baseline CNN can generalize reasonably well to unseen chest X-ray images.
+## Results & Analysis
+The model achieved strong validation performance, with high recall and AUC, indicating effective discrimination between pneumonia and normal cases. While validation accuracy fluctuated across epochs, recall and AUC remained stable, highlighting the importance of multi-metric evaluation in medical contexts.
 
-## What I Learned
-Through this project, I gained hands-on experience with:
+## Limitations & Future Work
+- The baseline CNN is relatively shallow; deeper architectures or transfer learning may improve performance  
+- Class imbalance handling could be further refined  
+- Interpretability methods such as Grad-CAM could help visualize learned attention regions  
 
-- End-to-end CNN pipelines for medical image classification
-- Handling real-world medical image datasets with directory-based labels
-- Building efficient input pipelines using 'tf.data'
-- Applying and validating data augmentation strategies
-- Interpreting classification metrics beyond accuracy
-- Analyzing model behavior using confusion matrices and visual predictions
-
-## Future Work
-Potential improvements include:
-
-- Using transfer learning (e.g., ResNet, EfficientNet)
-- Addressing class imbalance explicitly
-- Performing cross-validation
-- Applying explainability methods such as Grad-CAM
+These directions represent natural extensions toward more clinically interpretable models.
